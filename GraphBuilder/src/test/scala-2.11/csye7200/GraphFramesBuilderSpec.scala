@@ -1,8 +1,7 @@
 package csye7200
 
-import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.sql.types.{LongType, StringType, StructField}
-import org.apache.spark.storage.StorageLevel
+import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.util.{Failure, Success, Try}

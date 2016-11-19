@@ -1,13 +1,8 @@
 package csye7200
 
-import java.io.IOException
-
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.storage.StorageLevel
 
-import scala.annotation.tailrec
-import scala.util.{Failure, Success, Try}
+import scala.util.Try
 
 /**
   * Created by houzl on 11/18/2016.

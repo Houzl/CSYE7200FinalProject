@@ -1,8 +1,6 @@
 package csye7200
 
 import org.apache.spark.sql._
-import org.apache.spark.storage.StorageLevel
-import org.graphframes.GraphFrame
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
