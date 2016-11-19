@@ -10,8 +10,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by houzl on 11/18/2016.
   */
-class
-GraphFramesSearch{
+object GraphFramesSearch{
   /**
     * Get full path from target vertices ID to Root(vid = 1)
     * @param edParentDF must be edParentDF
@@ -56,13 +55,7 @@ GraphFramesSearch{
   final def getSiblings(edParentDF: DataFrame, vid: Long): List[Long] ={
     val pVid = Try(edParentDF.filter(s"src = $vid").select("dst").head().getLong(0))
     pVid match {
-      case Success(n) => {
-        val siblings = Try(edParentDF.filter(s"dst = $n and src != $vid").select("src").rdd.map(r => r(0).asInstanceOf[Long]).collect().toList)
-        siblings match {
-          case Success(l) => l
-          case Failure(_) => Nil
-        }
-      }
+      case Success(n) => edParentDF.filter(s"dst = $n and src != $vid").select("src").rdd.map(r => r(0).asInstanceOf[Long]).collect().toList
       case Failure(_) => Nil
     }
   }
@@ -74,11 +67,7 @@ GraphFramesSearch{
     * @return List of children vertices id
     */
   final def getChildren(edParentDF: DataFrame, vid: Long): List[Long] ={
-    val siblings = Try(edParentDF.filter(s"dst = $vid" ).select("src").rdd.map(r => r(0).asInstanceOf[Long]).collect().toList)
-    siblings match {
-      case Success(n) => n
-      case Failure(_) => Nil
-    }
+    edParentDF.filter(s"dst = $vid" ).select("src").rdd.map(r => r(0).asInstanceOf[Long]).collect().toList
   }
   /**
     * Get vid By name
@@ -94,38 +83,4 @@ GraphFramesSearch{
       case Failure(_) => -1L
     }
   }
-}
-
-object GraphFramesSearch extends App{
-  // Get Spark Session
-  val spark = SparkSession
-    .builder()
-    .appName("CSYE 7200 Final Project")
-    .master("local[2]")
-    .config("spark.some.config.option", "some-value")
-    .getOrCreate()
-
-  val path = "C:\\Users\\houzl\\Downloads\\taxdmp\\"
-  val edParentDF = spark.read.parquet(path + "edParentDF").persist(StorageLevel.MEMORY_ONLY)
-  val edChildrenDF = spark.read.parquet(path + "edChildrenDF").persist(StorageLevel.MEMORY_ONLY)
-  val veDF = spark.read.parquet(path + "veDF").persist(StorageLevel.MEMORY_ONLY)
-
-
-  val GraphFramesSearch = new GraphFramesSearch
-  println(GraphFramesSearch.gatPathToRoot(edParentDF,63221,List(63221)))
-  //println(GraphFramesSearch.getSiblings(edParentDF,1))
-  //println(GraphFramesSearch.findVidByName(veDF,"root"))
-  //println(GraphFramesSearch.getSiblings(edParentDF,9606))
-
-  // Create an identical GraphFrame.
-  //val g = GraphFrame(ve, ed)
-  // too slow.
-  //  val paths = g.find("(a)-[e]->(b); (b)-[e2]->(c)")
-  //    .filter("e.relationship = 'parent'")
-  //    .filter("e2.relationship = 'children'")
-  //    .filter("a.id = 9606")
-  //    .filter("a.id != c.id")
-  //  paths.show()
-
-
 }
