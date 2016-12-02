@@ -55,7 +55,7 @@ object DataFramesSearch{
   final def getSiblings(edParentDF: DataFrame, vid: Long): List[Long] ={
     val pVid = Try(edParentDF.filter(s"src = $vid").select("dst").head().getLong(0))
     pVid match {
-      case Success(n) => edParentDF.filter(s"dst = $n and src != $vid").select("src").rdd.map(r => r(0).asInstanceOf[Long]).collect().toList
+      case Success(n) => edParentDF.filter(s"dst = $n and src != $vid").select("src").collect().toList.map(row => row.getLong(0))
       case Failure(_) => Nil
     }
   }
@@ -67,7 +67,7 @@ object DataFramesSearch{
     * @return List of children vertices id
     */
   final def getChildren(edParentDF: DataFrame, vid: Long): List[Long] ={
-    edParentDF.filter(s"dst = $vid" ).select("src").rdd.map(r => r(0).asInstanceOf[Long]).collect().toList
+    edParentDF.filter(s"dst = $vid" ).select("src").collect().toList.map(row => row.getLong(0))
   }
   /**
     * Get vid By name

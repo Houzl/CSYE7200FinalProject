@@ -49,7 +49,6 @@ object DataFramesBuilder{
     //TODO ugly and slowly. need to improve
     val pathToRoot = scala.collection.mutable.Map[Long, String]()
     pathToRoot += (1L -> "/")
-
     /**
       * tailrec to build pathToRoot Map
       * @param dst List of ids
