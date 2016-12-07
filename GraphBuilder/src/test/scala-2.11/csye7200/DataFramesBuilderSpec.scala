@@ -27,13 +27,11 @@ class DataFramesBuilderSpec extends FlatSpec with Matchers {
     val edParentDF = DataFramesBuilder.getEdgesParentDF(edgesPath, spark)
     val veDF = DataFramesBuilder.getVerticesDF(verticesPath, spark)
 
-    edParentDF match {
-      case f @ _ => f.isFailure shouldBe true
-    }
+    //This getEdgesParentDF didn't materialize RDD, should it will be always Success
+    edParentDF.isSuccess shouldBe true
+    //getVerticesDF materialized RDD, so it could be Failure.
+    veDF.isFailure shouldBe true
 
-    veDF match {
-      case f @ _ => f.isFailure shouldBe true
-    }
   }
 
   it should "work for read from original file" in {
@@ -67,7 +65,6 @@ class DataFramesBuilderSpec extends FlatSpec with Matchers {
       case Success(n) => {
         val df = n.persist(StorageLevel.MEMORY_ONLY).cache()
         val bv = DataFramesBuilder.buildPathToRootDF(df, spark, 3)
-        bv.show()
         bv.count() shouldBe 2027
         bv.filter("id = 1").select("path").head().getString(0) shouldBe "/"
       }
@@ -75,4 +72,3 @@ class DataFramesBuilderSpec extends FlatSpec with Matchers {
     }
   }
 }
-//10239
