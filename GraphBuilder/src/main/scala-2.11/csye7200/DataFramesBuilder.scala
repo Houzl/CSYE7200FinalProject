@@ -117,8 +117,8 @@ object test extends App{
       val parentPath = i._2
       edDF.filter(s"dst = $id").select("src").withColumn("parent", lit(s"$parentPath$id/"))
     })
-  edDF.
-    //for (i <- nextLevelDF) i.show()
+
+    for (i <- nextLevelDF) i.show()
 
 
 
