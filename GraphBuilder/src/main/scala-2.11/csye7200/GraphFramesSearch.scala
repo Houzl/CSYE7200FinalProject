@@ -37,6 +37,7 @@ object GraphFramesSearch {
     * @param r result list
     * @return List of vertices
     */
+  //TODO Change List[Long] to RDD[LONG]
   @tailrec final def getPathToRoot(graph: GraphFrame, vid: Long, r : List[Long]): List[Long] = {
     val nextSrc = Try(graph.find("(src)-[]->(dts)").filter(s"src.id = $vid").select("dts.id").head().getLong(0))
     nextSrc match {

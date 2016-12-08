@@ -14,6 +14,7 @@ object IndexDataFramesSearch{
     * @param r result list
     * @return List of vertices
     */
+  //TODO Change List[Long] to RDD[LONG]
   final def getPathToRoot(pathToRootDF: DataFrame, vid: Long, r : List[Long]): List[Long] = {
     val path = Try(pathToRootDF.filter(s"id = $vid").select("path").head().getString(0))
     path match {

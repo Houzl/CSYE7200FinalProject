@@ -16,6 +16,7 @@ object DataFramesSearch{
     * @param r result list
     * @return List of vertices
     */
+  //TODO Change List[Long] to RDD[LONG]
   @tailrec final def getPathToRoot(edParentDF: DataFrame, vid: Long, r : List[Long]): List[Long] = {
     val nextSrc = Try(edParentDF.filter(s"src = $vid").select("dst").head().getLong(0))
     nextSrc match {
