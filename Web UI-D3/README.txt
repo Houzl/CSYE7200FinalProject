@@ -1,0 +1,1 @@
+The search UI is ran on localhost:9000 in this folder directory
