@@ -47,8 +47,8 @@ object IndexDataFramesSearch{
   /**
     * Find siblings vertices ids.
     * @param pathToRootDF pathToRootDF
-    * @param vid parent vertices id
-    * @return List of children vertices id, exclude itself
+    * @param vid target vertices id
+    * @return List of getSiblings vertices id, exclude itself.
     */
   final def getSiblings(pathToRootDF: DataFrame, vid: Long): List[Long] ={
     val path = Try(pathToRootDF.filter(s"id = $vid").select("path").head().getString(0))

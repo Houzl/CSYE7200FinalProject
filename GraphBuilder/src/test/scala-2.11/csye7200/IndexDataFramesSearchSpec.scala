@@ -1,6 +1,6 @@
 package csye7200
 
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.storage.StorageLevel
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -18,7 +18,10 @@ class IndexDataFramesSearchSpec extends FlatSpec with Matchers {
   val path = "C:\\Users\\houzl\\Downloads\\taxdmp\\"
   val edgesPath = path + "nodes.dmp"
   val edParentDF = DataFramesBuilder.getEdgesParentDF(edgesPath, spark).getOrElse(spark.createDataFrame(List())).persist(StorageLevel.MEMORY_ONLY).cache()
-  val pathToRootDF = DataFramesBuilder.buildPathToRootDF(edParentDF, spark, 3)
+  val pathToRootDFOri = DataFramesBuilder.buildPathToRootDF(edParentDF, spark, 3)
+  //pathToRootDFOri.write.mode(SaveMode.Overwrite).parquet(s"$path\\pathToRootDF")
+  val pathToRootDF = spark.read.parquet(s"$path\\pathToRootDF").persist(StorageLevel.MEMORY_ONLY).cache()
+
 
   behavior of "IndexDataFramesSearch getPathToRoot"
   it should "work for 12429 to root" in {
@@ -43,7 +46,7 @@ class IndexDataFramesSearchSpec extends FlatSpec with Matchers {
   it should "work for root, whoes id is 1" in {
     IndexDataFramesSearch.getSiblings(pathToRootDF,1) shouldBe Nil
   }
-  it should "work for Homo sapiens,whose id is 9606" in {
+  it should "work for id 10239" in {
     IndexDataFramesSearch.getSiblings(pathToRootDF,10239).toSet shouldBe Set(12884, 12908, 28384, 131567)
   }
   it should "work for None,whose id is -1" in {
