@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Search Child Relationship</title>
+	<script src="http://d3js.org/d3.v2.min.js"></script>
+</head>
+
+<body>
+	<h2>Let's Search For The Child Nodes of This Species</h2>
+	<form id="form" onsubmit="return false;">
+	    <input  type="text" id="userInput" />
+	    <input  type="submit"   onclick="search();" />
+	</form>
+	<a href="http://localhost:8000/readeal/index.html" class = "button">Go Back</a>
+	<script>
+
+	function search() {
+	    var input = "http://localhost:9000/search/"+document.getElementById("userInput").value;
+	    console.log(input);
+		
+		var canvas = d3.select("body").append("svg")
+				.attr("width",1000)
+				.attr("height",1000)
+				.append("g")
+					.attr("transform","translate(50,50)");
+					
+		var tree = d3.layout.tree()
+					.size([800,800]);
+		
+		d3.json(input, function(data,error){
+			
+			var nodes = tree.nodes(data);
+			var links = tree.links(nodes);
+			
+			var node = canvas.selectAll(".node")
+			   .data(nodes)
+				.enter()
+				.append("g")
+				.attr("class","node")
+				.attr("transform",function(d){return "translate("+(d.x)+","+d.y+")";})
+			/*				.attr("transform",function(d){return "translate("+d.y+","+d.x+")";})
+*/
+			node.append("circle")
+					.attr("r", 10)
+			.attr("fill","steelblue");
+			
+			node.append("text")
+				.text(function(d) {return "|"+d.Name+"|";})
+				.attr("y",25)
+				.attr("x",-4)
+			
+			
+			var diagonal = d3.svg.diagonal();
+			/*var diagonal = d3.svg.diagonal().projection(function(d){return [d.x,d.y];});*/
+			canvas.selectAll(".link")
+					.data(links)
+					.enter()
+					.append("path")
+					.attr("class","link")
+					.attr("fill","none")
+					.attr("stroke","#ADADAD")
+					.attr("d",diagonal);
+			
+		})
+	}
+							
+						
+	
+
+	</script>
+</body>
+</html>

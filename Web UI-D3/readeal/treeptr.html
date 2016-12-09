@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>Search Path to Root</title>
+	<script src="http://d3js.org/d3.v2.min.js"></script>
+</head>
+
+<body>
+	<h1>Let's Search For The Path to Root for this Species</h1>
+	<form id="form" onsubmit="return false;">
+	    <input  type="text" id="userInput" />
+	    <input  type="submit"   onclick="search();" />
+	</form>
+	<a href="http://localhost:8000/readeal/index.html" class = "button">Go Back</a>
+
+	<script>
+
+	function search() {
+	    var input = "http://localhost:9000/search/PtR/"+document.getElementById("userInput").value;
+	    console.log(input);
+		
+					
+		
+		d3.json(input, function(data,error){
+			
+		var canvas = d3.select("body").append("svg")
+			.attr("width",1000)
+			.attr("height",1000)
+			.append("g")
+			.attr("transform","translate(50,50)");
+		
+			
+		canvas.selectAll("circle")
+				.data(data)
+				.enter()
+					.append("circle")
+					.attr("r",10)
+					.attr("fill","steelblue")
+					.attr("cy",function(d,i) {return i*100;})
+			
+		canvas.selectAll("text")
+				.data(data)
+				.enter()
+				.append("text")
+				.attr("fill","black")
+				.attr("y",function(d,i) {return i*100+5;})
+				.attr("x",function(d,i) {return 50;})
+			.text(function (d){return d.ID;});
+			
+		canvas.append("line")
+				.data(data)
+				.enter()
+				.append("line")
+				.attr("x1",0)
+				.attr("x2",0)
+				.attr("y1",2)
+				.attr("y2",function(d,i) {return i*100})
+				.attr("stroke-width",5)
+			.attr("stroke","black");
+			
+		canvas.append("text")
+			  .attr("x",120)
+			  .attr("y",0)
+			.text("Root");
+		
+		canvas.append("text")
+			  .attr("x",120)
+			  .attr("y",205)
+			.text("Leaf");
+			
+		})
+	}
+							
+						
+	
+
+	</script>
+</body>
+</html>
