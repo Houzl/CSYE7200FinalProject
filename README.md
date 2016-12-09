@@ -6,3 +6,4 @@ Team member: Zhilong Hou, Li Ma
 
 The dataset: ftp://ftp.ncbi.nih.gov/pub/taxonomy/taxdmp.zip
 To run the program you need download this zip file, unzip it and change "val path" in all *Spec.scala files to the real path in you system. 
+te
