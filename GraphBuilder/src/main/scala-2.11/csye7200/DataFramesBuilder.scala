@@ -44,6 +44,7 @@ object DataFramesBuilder{
     * @param edParentDF parent edges dataframe
     * @param spark SparkSession
     * @param maxLevel Max level to travel. -1 means travel all nodes.
+    * @param TraversalType 1 using list, 2 using DataFrame, other error.
     * @return DataFrame, id, pathToRoot String.
     */
   def buildPathToRootDF(edParentDF: DataFrame, spark : SparkSession, maxLevel: Int, TraversalType : Int): DataFrame = {
