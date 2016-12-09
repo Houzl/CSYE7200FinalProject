@@ -86,4 +86,20 @@ object DataFramesSearch{
       }
     }
   }
+  /**
+    * Get name By id
+    * @param veDF vertices DF
+    * @param vid Int of name
+    * @return if success return name, otherwise return ""
+    */
+  final def findNameByVID(veDF: DataFrame, vid : Int): String = {
+    if (vid < 1L) ""
+    else{
+      val vid = Try(veDF.filter(s"id = $vid").select("name").head().getString(0))
+      vid match {
+        case Success(n) => n
+        case Failure(_) => ""
+      }
+    }
+  }
 }
