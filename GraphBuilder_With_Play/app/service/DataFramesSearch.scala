@@ -1,11 +1,13 @@
-package model
+package service
 
 import org.apache.spark.sql._
 
 import scala.annotation.tailrec
 import scala.util.{Failure, Success, Try}
 
-
+/**
+  * Created by houzl on 11/18/2016.
+  */
 object DataFramesSearch{
   /**
     * Get full path from target vertices ID to Root(vid = 1)
@@ -14,6 +16,7 @@ object DataFramesSearch{
     * @param r result list
     * @return List of vertices
     */
+  //TODO Change List[Long] to RDD[LONG]
   @tailrec final def getPathToRoot(edParentDF: DataFrame, vid: Long, r : List[Long]): List[Long] = {
     val nextSrc = Try(edParentDF.filter(s"src = $vid").select("dst").head().getLong(0))
     nextSrc match {
@@ -84,9 +87,15 @@ object DataFramesSearch{
     }
   }
 
-  final def findVNameByID(veDF:DataFrame, ID:Long):String = {
-    "Unknown"
+
+  final def findVNameByID(veDF: DataFrame, vid : Long): String = {
+    if (vid < 1L) ""
+    else{
+      val names = Try(veDF.filter(s"id = $vid").select("name").head().getString(0))
+      names match {
+        case Success(n) => n
+        case Failure(_) => ""
+      }
+    }
   }
-}/**
-  * Created by mali on 12/4/16.
-  */
+}

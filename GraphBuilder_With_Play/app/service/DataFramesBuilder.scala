@@ -1,14 +1,13 @@
-package model
-/**
-  * Created by mali on 12/4/16.
-  */
+package service
 
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.annotation.tailrec
 import scala.util.Try
 
-
+/**
+  * Created by houzl on 11/18/2016.
+  */
 object DataFramesBuilder{
 
   /**
@@ -40,39 +39,33 @@ object DataFramesBuilder{
   }
 
   /**
-    * Build path to root DataFrame. But too slow to run.
+    * Build path to root DataFrame. Using List in recursion
     * @param edParentDF parent edges dataframe
     * @param spark SparkSession
     * @param maxLevel Max level to travel. -1 means travel all nodes.
     * @return DataFrame, id, pathToRoot String.
     */
   def buildPathToRootDF(edParentDF: DataFrame, spark : SparkSession, maxLevel: Int): DataFrame = {
-    //TODO ugly and slowly. need to improve
-    val pathToRoot = scala.collection.mutable.Map[Long, String]()
-    pathToRoot += (1L -> "/")
     /**
-      * tailrec to build pathToRoot Map
-      * @param dst List of ids
+      * tailrec to build pathToRoot Map, Using DataFrame in recursion
+      * @param curLevelDF currentLevel nodes (id,path) in DataFrame
       * @param level current level
       * @param maxLevel Max level to travel. -1 means travel all nodes.
+      * @param previousDF all parsed nodes (id,path) in DataFrame
       * @return List of ids for dst's Children.
       */
-    @tailrec def bfsTraversal(dst: List[Long], level: Int, maxLevel: Int): List[Long] = {
-      //nextLevelTuple List of (id, List(ids for children))
-      val nextLevelTuple = dst.map(id => (id, edParentDF.filter(s"dst = $id").select("src").collect().toList.map(_.getLong(0))))
-      for (t <- nextLevelTuple){
-        val parentId = t._1
-        val parentPath = pathToRoot.getOrElse(parentId,"/")
-        for (id <- t._2) {
-          pathToRoot += (id -> s"$parentPath$parentId/")
-        }
-      }
-      val nextLevelIds = nextLevelTuple flatMap (i => i._2.map(j => j))
-      if (nextLevelIds.isEmpty || (maxLevel != -1 && level >= maxLevel)) Nil
-      else bfsTraversal(nextLevelIds,level + 1,maxLevel)
+    @tailrec def bfsTraversalUsingDF(curLevelDF: DataFrame, level: Int, maxLevel: Int, previousDF : DataFrame): DataFrame = {
+      val nextLevelDF = curLevelDF.collect().toList.map(r => (r.getLong(0),r.getString(1))).map(i => {
+        import org.apache.spark.sql.functions.lit
+        val id = i._1
+        val parentPath = i._2
+        edParentDF.filter(s"dst = $id").select("src").withColumn("path", lit(s"$parentPath$id/"))
+      }).reduceLeft(_.union(_))
+      val wholeDF = previousDF.union(nextLevelDF)
+      if (nextLevelDF.count() == 0 || (maxLevel != -1 && level >= maxLevel)) wholeDF
+      else bfsTraversalUsingDF(nextLevelDF,level + 1,maxLevel, wholeDF)
     }
-    bfsTraversal(List(1L),1,maxLevel)
-    spark.createDataFrame(pathToRoot.toSeq).toDF("id","path")
+    val rootDF = spark.createDataFrame(Seq((1L,"/"))).toDF("id","path")
+    bfsTraversalUsingDF(rootDF,1,3,rootDF)
   }
-
 }

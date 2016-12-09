@@ -2,65 +2,80 @@
 <html>
 
 <head>
-	<title>Search Child Relationship</title>
+	<title>Search Path to Root</title>
 	<script src="http://d3js.org/d3.v2.min.js"></script>
 </head>
 
 <body>
-	<h2>Let's Search For The Child Nodes of This Species</h2>
+	<h1>Let's Search For The Siblings to Root for this Species</h1>
 	<form id="form" onsubmit="return false;">
 	    <input  type="text" id="userInput" />
 	    <input  type="submit"   onclick="search();" />
 	</form>
 	<a href="http://localhost:8000/readeal/index.html" class = "button">Go Back</a>
+	<h3>Target:
+	<div id="display"></div>
+	</h3>
+	
+
+
+</body>
 	<script>
 
 	function search() {
-	    var input = "http://localhost:9000/search/siblings"+document.getElementById("userInput").value;
+	    var input = "http://localhost:9000/search/sibling/"+document.getElementById("userInput").value;
 	    console.log(input);
+		document.getElementById("display").innerHTML = document.getElementById("userInput").value;
 		
-		var canvas = d3.select("body").append("svg")
-				.attr("width",1000)
-				.attr("height",1000)
-				.append("g")
-					.attr("transform","translate(50,50)");
 					
-		var tree = d3.layout.tree()
-					.size([800,800]);
 		
 		d3.json(input, function(data,error){
 			
-			var nodes = tree.nodes(data);
-			var links = tree.links(nodes);
+		var canvas = d3.select("body").append("svg")
+			.attr("width",1000)
+			.attr("height",1000)
+			.append("g")
+			.attr("transform","translate(50,50)");
+		
+		canvas.append("rect")
+			  .attr("width",20)
+			  .attr("height",20)
+			  .attr("y",-50)
+			  .attr("x",-10)
+			  .attr("fill","red")
+			  .text(document.getElementById("userInput").value)
+			  
 			
-			var node = canvas.selectAll(".node")
-			   .data(nodes)
+		canvas.selectAll("circle")
+				.data(data)
 				.enter()
-				.append("g")
-				.attr("class","node")
-				.attr("transform",function(d){return "translate("+(d.x)+","+d.y+")";})
-			/*				.attr("transform",function(d){return "translate("+d.y+","+d.x+")";})
-*/
-			node.append("circle")
-					.attr("r", 10)
-			.attr("fill","steelblue");
+					.append("circle")
+					.attr("r",10)
+					.attr("fill","steelblue")
+					.attr("cy",function(d,i){return 100;})
+					.attr("cx",function(d,i) {return i*100;})
 			
-			node.append("text")
-				.text(function(d) {return "|"+d.Name+"|";})
-				.attr("y",25)
-				.attr("x",-4)
+		canvas.selectAll("text")
+				.data(data)
+				.enter()
+				.append("text")
+				.attr("fill","black")
+				.attr("y",function(d,i) {return 130;})
+				.attr("x",function(d,i) {return i*100;})
+			.text(function (d){return d.ID;});
 			
+		canvas.append("line")
+				.data(data)
+				.enter()
+				.append("line")
+				.attr("x1",0)
+				.attr("x2",0)
+				.attr("y1",2)
+				.attr("y2",function(d,i) {return i*100})
+				.attr("stroke-width",5)
+			.attr("stroke","black");
 			
-			var diagonal = d3.svg.diagonal();
-			/*var diagonal = d3.svg.diagonal().projection(function(d){return [d.x,d.y];});*/
-			canvas.selectAll(".link")
-					.data(links)
-					.enter()
-					.append("path")
-					.attr("class","link")
-					.attr("fill","none")
-					.attr("stroke","#ADADAD")
-					.attr("d",diagonal);
+		
 			
 		})
 	}
@@ -69,5 +84,4 @@
 	
 
 	</script>
-</body>
 </html>

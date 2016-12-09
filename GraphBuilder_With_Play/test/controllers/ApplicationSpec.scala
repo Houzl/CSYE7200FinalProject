@@ -10,16 +10,15 @@ import play.api.test.Helpers._
 import play.api.test._
 import play.test.WithApplication
 import org.scalatestplus.play._
+import play.api.libs.ws.WS
 
 class ApplicationSpec extends PlaySpec with OneAppPerTest{
 
-  "Application" should {
+  "run in a server" in {
+    running(TestServer(8000)) {
 
-    "respond to the search Action" in {
-      val result = controllers.Application.searchChild("1")(FakeRequest())
+      await(WS.url("http://localhost:8000").get).status mustBe OK
 
-      status(result) mustBe OK
     }
-
   }
 }

@@ -19,9 +19,7 @@
 	function search() {
 	    var input = "http://localhost:9000/search/PtR/"+document.getElementById("userInput").value;
 	    console.log(input);
-		
-					
-		
+	
 		d3.json(input, function(data,error){
 			
 		var canvas = d3.select("body").append("svg")
@@ -46,7 +44,7 @@
 				.attr("fill","black")
 				.attr("y",function(d,i) {return i*100+5;})
 				.attr("x",function(d,i) {return 50;})
-			.text(function (d){return d.ID;});
+			.text(function (d){return d.ID+":"+d.Name;});
 			
 		canvas.append("line")
 				.data(data)
@@ -61,13 +59,10 @@
 			
 		canvas.append("text")
 			  .attr("x",120)
-			  .attr("y",0)
-			.text("Root");
+			  .attr("y",4)
+			.text("Root")
+			.attr("fill","red");
 		
-		canvas.append("text")
-			  .attr("x",120)
-			  .attr("y",205)
-			.text("Leaf");
 			
 		})
 	}

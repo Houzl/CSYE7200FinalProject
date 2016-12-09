@@ -1,4 +1,4 @@
-package model
+package service
 
 import org.apache.spark.sql._
 
@@ -15,6 +15,7 @@ object IndexDataFramesSearch{
     * @param r result list
     * @return List of vertices
     */
+  //TODO Change List[Long] to RDD[LONG]
   final def getPathToRoot(pathToRootDF: DataFrame, vid: Long, r : List[Long]): List[Long] = {
     val path = Try(pathToRootDF.filter(s"id = $vid").select("path").head().getString(0))
     path match {
@@ -47,8 +48,8 @@ object IndexDataFramesSearch{
   /**
     * Find siblings vertices ids.
     * @param pathToRootDF pathToRootDF
-    * @param vid parent vertices id
-    * @return List of children vertices id, exclude itself
+    * @param vid target vertices id
+    * @return List of getSiblings vertices id, exclude itself.
     */
   final def getSiblings(pathToRootDF: DataFrame, vid: Long): List[Long] ={
     val path = Try(pathToRootDF.filter(s"id = $vid").select("path").head().getString(0))

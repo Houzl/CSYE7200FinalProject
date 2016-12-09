@@ -7,18 +7,8 @@
 </head>
 
 <body>
-	<h2>Let's Search For The Child Nodes of This Species</h2>
-	<form id="form" onsubmit="return false;">
-	    <input  type="text" id="userInput" />
-	    <input  type="submit"   onclick="search();" />
-	</form>
-	<a href="http://localhost:8000/readeal/index.html" class = "button">Go Back</a>
-	<script>
 
-	function search() {
-	    var input = "http://localhost:9000/search/"+document.getElementById("userInput").value;
-	    console.log(input);
-		
+	<script>
 		var canvas = d3.select("body").append("svg")
 				.attr("width",500)
 				.attr("height",500)
@@ -28,7 +18,7 @@
 		var tree = d3.layout.tree()
 					.size([400,400]);
 		
-		d3.json(input, function(data,error){
+		d3.json("treejson.json", function(data,error){
 			
 			var nodes = tree.nodes(data);
 			var links = tree.links(nodes);
@@ -38,9 +28,10 @@
 				.enter()
 				.append("g")
 				.attr("class","node")
-				.attr("transform",function(d){return "translate("+(d.x)+","+d.y+")";})
-			/*				.attr("transform",function(d){return "translate("+d.y+","+d.x+")";})
-*/
+				.attr("transform",function(d){return "translate("+d.y+","+d.x+")";})
+				/*.attr("transform",function(d){return "translate("+(d.x)+","+d.y+")";})*/
+							
+
 			node.append("circle")
 					.attr("r", 10)
 			.attr("fill","steelblue");
@@ -51,8 +42,8 @@
 				.attr("x",-4)
 			
 			
-			var diagonal = d3.svg.diagonal();
-			/*var diagonal = d3.svg.diagonal().projection(function(d){return [d.x,d.y];});*/
+			/*var diagonal = d3.svg.diagonal();*/
+			var diagonal = d3.svg.diagonal().projection(function(d){return [d.y,d.x];});
 			canvas.selectAll(".link")
 					.data(links)
 					.enter()
@@ -63,7 +54,7 @@
 					.attr("d",diagonal);
 			
 		})
-	}
+	
 							
 						
 	
