@@ -51,6 +51,17 @@ class DataFramesSearchSpec extends FlatSpec with Matchers {
     DataFramesSearch.findVidByName(veDF,"...") shouldBe -1
   }
 
+  behavior of "DataFramesSearch findNameByVID"
+  it should "work for root, whose id is 1" in {
+    DataFramesSearch.findNameByVID(veDF,1) shouldBe ",all,root,"
+  }
+  it should "work for Homo sapiens, whose id is 9606" in {
+    DataFramesSearch.findNameByVID(veDF, 9606) shouldBe ",Homo sapiens,Homo sapiens Linnaeus, 1758,human,humans,man,"
+  }
+  it should "work for ....,who does not exist" in {
+    DataFramesSearch.findNameByVID(veDF, -1) shouldBe ""
+  }
+
   behavior of "DataFramesSearch getSiblings"
   it should "work for root, whoes id is 1" in {
     DataFramesSearch.getSiblings(edParentDF,1) shouldBe Nil
