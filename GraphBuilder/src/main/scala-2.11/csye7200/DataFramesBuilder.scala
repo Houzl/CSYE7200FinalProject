@@ -1,6 +1,5 @@
 package csye7200
 
-import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import scala.annotation.tailrec
@@ -44,31 +43,9 @@ object DataFramesBuilder{
     * @param edParentDF parent edges dataframe
     * @param spark SparkSession
     * @param maxLevel Max level to travel. -1 means travel all nodes.
-    * @param TraversalType 1 using list, 2 using DataFrame, other error.
     * @return DataFrame, id, pathToRoot String.
     */
-  def buildPathToRootDF(edParentDF: DataFrame, spark : SparkSession, maxLevel: Int, TraversalType : Int): DataFrame = {
-    /**
-      * tailrec to build pathToRoot Map
-      * @param dst List of ids
-      * @param level current level
-      * @param maxLevel Max level to travel. -1 means travel all nodes.
-      * @return List of ids for dst's Children.
-      */
-    @tailrec def bfsTraversalUsingList(dst: List[Long], level: Int, maxLevel: Int, p : Map[Long, String]): Map[Long, String] = {
-      //nextLevelTuple List of (id, List(ids for children))
-      val nextLevelTuple = dst.map(id => (id, edParentDF.filter(s"dst = $id").select("src").collect().toList.map(_.getLong(0))))
-      val newList = for (t <- nextLevelTuple) yield{
-        val parentId = t._1
-        val parentPath = p.getOrElse(parentId,"/")
-        for (id <- t._2) yield (id -> s"$parentPath$parentId/")
-      }
-      val newMap = newList.flatMap(_.map(i => i)).toMap[Long, String] ++ p
-      val nextLevelIds = nextLevelTuple flatMap (i => i._2.map(j => j))
-      if (nextLevelIds.isEmpty || (maxLevel != -1 && level >= maxLevel)) newMap
-      else bfsTraversalUsingList(nextLevelIds,level + 1,maxLevel, newMap)
-    }
-
+  def buildPathToRootDF(edParentDF: DataFrame, spark : SparkSession, maxLevel: Int): DataFrame = {
     /**
       * tailrec to build pathToRoot Map, Using DataFrame in recursion
       * @param curLevelDF currentLevel nodes (id,path) in DataFrame
@@ -88,42 +65,8 @@ object DataFramesBuilder{
       if (nextLevelDF.count() == 0 || (maxLevel != -1 && level >= maxLevel)) wholeDF
       else bfsTraversalUsingDF(nextLevelDF,level + 1,maxLevel, wholeDF)
     }
-
-    /**
-      * tailrec to build pathToRoot Map, Using RDD in recursion
-      * @param dst List of ids
-      * @param level current level
-      * @param maxLevel Max level to travel. -1 means travel all nodes.
-      * @return List of ids for dst's Children.
-      */
-//    //TODO using RDD, no error, no exception, but can't finish.
-//    @tailrec def bfsTraversalUsingRDD(dst: RDD[Long], level: Int, maxLevel: Int, p : Map[Long, String]): Map[Long, String] = {
-//      //nextLevelTuple List of (id, List(ids for children))
-//      val nextLevelTuple = dst.map(id => (id, edParentDF.filter(s"dst = $id").select("src").rdd.map(_.getLong(0))))
-//      val newRDD = for (t <- nextLevelTuple) yield{
-//        val parentId = t._1
-//        val parentPath = p.getOrElse(parentId,"/")
-//        for (id <- t._2) yield (id -> s"$parentPath$parentId/")
-//      }
-//      val newMap = newRDD.flatMap(_.collect()).collectAsMap().toMap ++ p
-//      val nextLevelIds = newRDD.flatMap(_.collect().map(_._1))
-//      if (nextLevelIds.isEmpty || (maxLevel != -1 && level >= maxLevel)) newMap
-//      else bfsTraversalUsingRDD(nextLevelIds,level + 1,maxLevel, newMap)
-//    }
-
-    TraversalType match {
-      case 1 => {
-        spark.createDataFrame(bfsTraversalUsingList(List(1L),1,maxLevel, Map(1L -> "/")).toSeq).toDF("id","path")
-      }
-      case 2 => {
-        val rootDF = spark.createDataFrame(Seq((1L,"/"))).toDF("id","path")
-        bfsTraversalUsingDF(rootDF,1,3,rootDF)
-      }
-      case _ => {
-        val rootDF = spark.createDataFrame(Seq((1L,"/"))).toDF("id","path")
-        bfsTraversalUsingDF(rootDF,1,3,rootDF)
-      }
-    }
+    val rootDF = spark.createDataFrame(Seq((1L,"/"))).toDF("id","path")
+    bfsTraversalUsingDF(rootDF,1,3,rootDF)
   }
 }
 //object test extends App{

@@ -64,13 +64,9 @@ class DataFramesBuilderSpec extends FlatSpec with Matchers {
     edParentDF match {
       case Success(n) => {
         val df = n.persist(StorageLevel.MEMORY_ONLY).cache()
-        val bv = DataFramesBuilder.buildPathToRootDF(df, spark, 3,1)
+        val bv = DataFramesBuilder.buildPathToRootDF(df, spark, 3)
         bv.count() shouldBe 2027
         bv.filter("id = 1").select("path").head().getString(0) shouldBe "/"
-        val bv3 = DataFramesBuilder.buildPathToRootDF(df, spark, 3,2)
-        bv3.count() shouldBe 2027
-        val bv2 = DataFramesBuilder.buildPathToRootDF(df, spark, 3,3)
-        bv3.count() shouldBe 2027
       }
       case Failure(x) => x shouldBe Nil
     }

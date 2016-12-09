@@ -18,7 +18,7 @@ class IndexDataFramesSearchSpec extends FlatSpec with Matchers {
   val path = "C:\\Users\\houzl\\Downloads\\taxdmp\\"
   val edgesPath = path + "nodes.dmp"
   val edParentDF = DataFramesBuilder.getEdgesParentDF(edgesPath, spark).getOrElse(spark.createDataFrame(List())).persist(StorageLevel.MEMORY_ONLY).cache()
-  val pathToRootDF = DataFramesBuilder.buildPathToRootDF(edParentDF, spark, 3, 1)
+  val pathToRootDF = DataFramesBuilder.buildPathToRootDF(edParentDF, spark, 3)
 
   behavior of "IndexDataFramesSearch getPathToRoot"
   it should "work for 12429 to root" in {
