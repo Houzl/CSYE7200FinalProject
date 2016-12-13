@@ -1,0 +1,8 @@
+GET / controllers.Application.index
+
+GET /search/:nodeID controllers.Application.searchChild(nodeID)
+
+GET /search/PtR/:nodeID controllers.Application.searchPtoR(nodeID)
+
+GET /search/sibling/:nodeID controllers.Application.searchsibling(nodeID)
+
